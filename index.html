@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>岸桥–集卡协同作业估算</title>
+<link rel="stylesheet" href="app/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">⚓</span>
+    <div>
+      <h1>岸桥–集卡协同作业估算</h1>
+      <div class="sub">岸桥等车 · 车等岸桥 · 堆场拥堵，一张网一起算</div>
+    </div>
+  </div>
+  <div class="top-actions">
+    <label class="weather-ctl" title="天气/视线整体影响岸桥与运输">
+      天气/视线
+      <select id="weatherSel">
+        <option value="1.0">良好 (100%)</option>
+        <option value="0.9">轻雾/小雨 (90%)</option>
+        <option value="0.75">雨雾 (75%)</option>
+        <option value="0.6">大雾/大雨 (60%)</option>
+        <option value="0.45">恶劣 (45%)</option>
+        <option value="custom">自定义…</option>
+      </select>
+    </label>
+    <button id="btnRecalc" class="primary">重新估算</button>
+    <button id="btnHelp" class="ghost" title="模型假设与用法">说明</button>
+  </div>
+</header>
+
+<div class="global-strip">
+  <div class="strip-item">
+    <span class="strip-label">在用车总数</span>
+    <span id="kpiTrucks" class="strip-val">–</span>
+    <span class="strip-sub" id="kpiTrucksSub"></span>
+  </div>
+  <div class="strip-item">
+    <span class="strip-label">车太少·先停线</span>
+    <span id="kpiStarve" class="strip-val">–</span>
+    <span class="strip-sub" id="kpiStarveSub"></span>
+  </div>
+  <div class="strip-item">
+    <span class="strip-label">车太多·岸边最长等待</span>
+    <span id="kpiShore" class="strip-val">–</span>
+    <span class="strip-sub" id="kpiShoreSub"></span>
+  </div>
+  <div class="strip-item">
+    <span class="strip-label">堆场最堵</span>
+    <span id="kpiYard" class="strip-val">–</span>
+    <span class="strip-sub" id="kpiYardSub"></span>
+  </div>
+  <div class="strip-item">
+    <span class="strip-label">全部完成(中位估计)</span>
+    <span id="kpiFinish" class="strip-val">–</span>
+    <span class="strip-sub" id="kpiFinishSub"></span>
+  </div>
+  <div class="strip-item version-box">
+    <span class="strip-label">估算版本</span>
+    <span id="kpiVersion" class="strip-val small">未估算</span>
+  </div>
+</div>
+
+<div id="staleBar" class="stale-bar hidden">
+  条件已改动，下面结果是旧版本 ——
+  <button class="link-btn" id="staleRecalc">立即重算</button>
+</div>
+<div id="calcBar" class="calc-bar hidden">
+  <div class="spinner"></div><span id="calcText">仿真计算中…</span>
+</div>
+
+<main class="layout">
+  <section class="col-lines">
+    <div class="col-head">
+      <h2>作业线 / 岸桥</h2>
+      <div class="head-actions">
+        <button id="btnAddLine" class="small">＋ 临时加线</button>
+      </div>
+    </div>
+    <div id="lineList" class="line-list"></div>
+  </section>
+
+  <section class="col-center">
+    <div class="col-head"><h2>整体进度与联动</h2></div>
+    <div class="panel">
+      <div class="panel-title">累计落地箱量（估计区间随时间）</div>
+      <canvas id="totalChart" height="180"></canvas>
+      <div id="lineEtaList" class="eta-list"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">岸边等待车数（各线，均值）</div>
+      <canvas id="shoreChart" height="140"></canvas>
+    </div>
+    <div class="panel">
+      <div class="panel-title">堆场在场车数 / 利用率</div>
+      <canvas id="yardChart" height="140"></canvas>
+    </div>
+  </section>
+
+  <section class="col-yards">
+    <div class="col-head"><h2>堆场与车队</h2></div>
+    <div id="yardList" class="yard-list"></div>
+    <div class="panel soft">
+      <div class="panel-title">运营操作</div>
+      <div class="ops">
+        <button id="btnBreakdown" class="op">岸桥故障 / 恢复分车</button>
+        <button id="btnOffDuty" class="op">集卡下班 / 车辆数变化</button>
+        <button id="btnActual" class="op">填报实际进度并修正</button>
+        <button id="btnReset" class="op danger">重置全部条件</button>
+      </div>
+      <div class="adv-toggle">
+        <button id="btnAdv" class="link-btn">▸ 高级参数（运输/堆场/修正系数）</button>
+      </div>
+      <div id="advPanel" class="adv-panel hidden"></div>
+    </div>
+  </section>
+</main>
+
+<div id="modalRoot"></div>
+<script src="app/sim.js"></script>
+<script src="app/charts.js"></script>
+<script src="app/app.js"></script>
+</body>
+</html>
